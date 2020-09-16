@@ -1,1 +1,3 @@
-console.log('AAAAAAAAA');
+(function returnFirstArgument(x) {
+  return x;
+});
