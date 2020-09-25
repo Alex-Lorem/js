@@ -11,7 +11,7 @@
  */
 function forEach(array, fn) {
   for (let i = 0; i < array.length; i++) {
-    fn(array[i]);
+    fn(array[i], i, array);
   }
 }
 
@@ -27,7 +27,7 @@ function forEach(array, fn) {
 function map(array, fn) {
   const array_2 = [];
   for (let i = 0; i < array.length; i++) {
-    array_2[i] = fn(array[i]);
+    array_2[i] = fn(array[i], i, array);
   }
   return array_2;
 }
@@ -42,10 +42,9 @@ function map(array, fn) {
    reduce([1, 2, 3], (all, current) => all + current) // 6
  */
 function reduce(array, fn, initial = 0) {
-  let result;
+  let result = 0;
   for (let i = 0; i < array.length; i++) {
-    result = fn(array[i], initial);
-    initial = array[i++];
+    result += fn(initial, array[i], i, array);
   }
   return result;
 }
@@ -59,7 +58,15 @@ function reduce(array, fn, initial = 0) {
    upperProps({ name: 'Сергей', lastName: 'Петров' }) вернет ['NAME', 'LASTNAME']
  */
 function upperProps(obj) {
-  return obj;
+  const result = [];
+
+  for (const item in obj) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (obj.hasOwnProperty(item)) {
+      result.push(item.toUpperCase());
+    }
+  }
+  return result;
 }
 
 /*
@@ -73,6 +80,14 @@ function upperProps(obj) {
    obj.foo = 2;
    console.log(obj.foo); // 4
  */
-function createProxy(obj) {}
+function createProxy(obj) {
+  const handler = {
+    get(target, name) {
+      return target[name] ** 2;
+    },
+  };
+
+  return new Proxy(obj, handler);
+}
 
 export { forEach, map, reduce, upperProps, createProxy };
