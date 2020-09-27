@@ -41,10 +41,12 @@ function map(array, fn) {
  Пример:
    reduce([1, 2, 3], (all, current) => all + current) // 6
  */
-function reduce(array, fn, initial = 0) {
-  let result = 0;
-  for (let i = 0; i < array.length; i++) {
-    result += fn(initial, array[i], i, array);
+function reduce(array, fn, initial) {
+  let result = initial ? initial : array[0];
+  const firstIter = initial ? 0 : 1;
+
+  for (let i = firstIter; i < array.length; i++) {
+    result = fn(result, array[i], i, array);
   }
   return result;
 }
