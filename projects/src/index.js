@@ -26,7 +26,7 @@ function createDivWithText(text) {
    prepend(document.querySelector('#one'), document.querySelector('#two')) // добавит элемент переданный первым аргументом в начало элемента переданного вторым аргументом
  */
 function prepend(what, where) {
-  where.appendChild(what, 0);
+  where.prepend(what);
 }
 
 /*
@@ -50,9 +50,8 @@ function prepend(what, where) {
  */
 function findAllPSiblings(where) {
   const array = [];
-  const p = where.querySelector('p');
   for (const element of where.children) {
-    if (element.nextElementSibling === p) {
+    if (element.nextElementSibling && element.nextElementSibling.tagName === 'P') {
       array.push(element);
     }
   }
@@ -117,7 +116,11 @@ function deleteTextNodes(where) {
  */
 function deleteTextNodesRecursive(where) {
   for (const child of where.childNodes) {
-    child.textContent = '';
+    if (child.nodeType === Element.TEXT_NODE) {
+      child.textContent = '';
+    } else if (child.nodeType === Element.ELEMENT_NODE) {
+      deleteTextNodes(child);
+    }
   }
 }
 
@@ -142,10 +145,35 @@ function deleteTextNodesRecursive(where) {
    }
  */
 function collectDOMStat(root) {
-  return {
-    texts: root.childNodes.length,
-    classes: '',
+  const obj = {
+    tags: {},
+    classes: {},
+    texts: 0,
   };
+  function checking(root) {
+    for (const child of root.childNodes) {
+      if (child.nodeType === Element.TEXT_NODE) {
+        obj.texts++;
+      } else if (child.nodeType === Element.ELEMENT_NODE) {
+        if (child.tagName in obj.tags) {
+          obj.tags[child.tagName]++;
+        } else {
+          obj.tags[child.tagName] = 1;
+        }
+
+        for (const className of child.classList) {
+          if (className in obj.classes) {
+            obj.classes[className]++;
+          } else {
+            obj.classes[className] = 1;
+          }
+        }
+        checking(child);
+      }
+    }
+  }
+  checking(root);
+  return obj;
 }
 
 /*
@@ -180,7 +208,22 @@ function collectDOMStat(root) {
      nodes: [div]
    }
  */
-function observeChildNodes(where, fn) {}
+function observeChildNodes(where, fn) {
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        fn({
+          type: mutation.addedNodes.length ? 'insert' : 'remove',
+          nodes: [
+            ...(mutation.addedNodes.length ? mutation.addedNodes : mutation.removedNodes),
+          ],
+        });
+      }
+    });
+  });
+
+  observer.observe(where, { childList: true, subtree: true });
+}
 
 export {
   createDivWithText,
