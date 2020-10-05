@@ -119,7 +119,7 @@ function deleteTextNodesRecursive(where) {
     if (child.nodeType === Element.TEXT_NODE) {
       child.textContent = '';
     } else if (child.nodeType === Element.ELEMENT_NODE) {
-      deleteTextNodes(child);
+      deleteTextNodesRecursive(child);
     }
   }
 }
