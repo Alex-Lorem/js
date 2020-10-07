@@ -25,11 +25,11 @@ function forEach(array, fn) {
    map([1, 2, 3], (el) => el ** 2) // [1, 4, 9]
  */
 function map(array, fn) {
-  const array_2 = [];
+  const result = [];
   for (let i = 0; i < array.length; i++) {
-    array_2[i] = fn(array[i], i, array);
+    result[i] = fn(array[i], i, array);
   }
-  return array_2;
+  return result;
 }
 
 /*
